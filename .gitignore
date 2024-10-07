@@ -1,0 +1,9 @@
+# Ignore database files
+*.db
+
+# Ignore virtual environment directories (e.g., venv from PyCharm, Python)
+venv/
+
+.idea/
+
+
