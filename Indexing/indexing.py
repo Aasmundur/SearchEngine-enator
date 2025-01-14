@@ -1,3 +1,5 @@
+import math
+
 import nltk
 from collections import defaultdict
 from nltk.stem import PorterStemmer
@@ -22,9 +24,12 @@ from nltk.stem import PorterStemmer
 def indexer(docs):
     doc_term_array = []
     doc_id_to_url = {}
+    total_docs = len(docs)
+
     for i, doc in enumerate(docs, start=1):
         url, _ = doc
         doc_id_to_url[url] = i
+
     for doc in docs:
         doc_id, text = doc
         terms = tokenizer(text)
@@ -36,13 +41,18 @@ def indexer(docs):
     doc_term_array.sort(key=lambda x: (x[0],x[1]))
     term_postings = defaultdict(list)
     term_doc_freq = defaultdict(int)
+
+    # remember we are weighting the term freq by 1 + log10(term_freq)
     for term, doc_id, term_freq in doc_term_array:
+        term_freq = 1 + math.log10(term_freq)
         term_postings[term].append((doc_id, term_freq))
     term_dict = {}
     for term, posting_list in term_postings.items():
         doc_freq = len(posting_list)
-        term_dict[term] = (doc_freq, sorted(posting_list))
-    print(f"Term dict: {term_dict}\n doc_id_to_url: {doc_id_to_url}")
+        idf = math.log10(total_docs / doc_freq)
+        tf_idf_postings = [(doc_id, tf, tf * idf) for doc_id, tf in posting_list]
+        term_dict[term] = (doc_freq, idf, sorted(tf_idf_postings))
+
     return term_dict, doc_id_to_url
 
 

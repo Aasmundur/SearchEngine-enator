@@ -15,8 +15,8 @@ from Indexing.dbHtmlToText import dbHtmlToText
 from Querying.ProcessQuery import ProcessQuery
 def main():
     # Crawler()
-    # dbProcessed = dbHtmlToText("UrlHtmlDb.db")
-    # term_dict, doc_id_to_url= indexer(dbProcessed)
+    dbProcessed = dbHtmlToText("UrlHtmlDb.db")
+    term_dict, doc_id_to_url= indexer(dbProcessed)
     # term_dict = {
     #     "aalborg": (4, [(2, 2), (3, 1), (9, 3), (13, 1)]),
     #     "university": (4, [(1, 1), (2, 2), (3, 1), (5, 1)]),
@@ -40,7 +40,7 @@ def main():
     #     "gsadas": 9,
     #     "sdadadad": 13
     # }
-    # ProcessQuery(term_dict, doc_id_to_url)
-    PageRank()
+    ProcessQuery(term_dict, doc_id_to_url)
+    # PageRank()
 if __name__ == "__main__":
     main()

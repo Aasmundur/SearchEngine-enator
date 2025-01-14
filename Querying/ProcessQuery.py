@@ -5,6 +5,8 @@ from Querying.ProcessNot import ProcessNot
 from Querying.ProcessOr import ProcessOr
 from nltk.stem import PorterStemmer
 
+from Ranking.ContentBased import vector_space_model
+
 
 def ProcessQuery(term_dict, doc_id_to_url):
     query = input('Enter your query:\n')
@@ -42,7 +44,7 @@ def ProcessQuery(term_dict, doc_id_to_url):
             i += 1
         else:
             if query_terms[i] in term_dict:
-                doc_ids = set(doc_id for doc_id, _ in term_dict[query_terms[i]][1])
+                doc_ids = set(doc_id for doc_id, _, _ in term_dict[query_terms[i]][2])
                 terms.append(doc_ids)
             else:
                 terms.append(set())  # Empty set if term not found
@@ -62,9 +64,21 @@ def ProcessQuery(term_dict, doc_id_to_url):
         result = ProcessAnd(and_terms)
 
     # Print results
+    # without vsm
+    # if result:
+    #     print(f"Found {len(result)} documents:")
+    #     for doc_id in result:
+    #         for url, id in doc_id_to_url.items():
+    #             if id == doc_id:
+    #                 print(f"Document ID: {doc_id}, URL: {url}")
+    #wih vsm
     if result:
-        print(f"Found {len(result)} documents:")
-        for doc_id in result:
+        similarities = vector_space_model(term_dict, query_terms)
+        filtered_similarities = {doc_id: similarities[doc_id] for doc_id in result}
+        print(f"The filtered sims: {filtered_similarities}")
+        sorted_results = sorted(filtered_similarities.items(), key=lambda item: item[1], reverse=True)
+        print(f"Found {len(sorted_results)} documents:")
+        for doc_id, similatiry in sorted_results:
             for url, id in doc_id_to_url.items():
                 if id == doc_id:
                     print(f"Document ID: {doc_id}, URL: {url}")

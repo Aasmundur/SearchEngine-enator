@@ -42,11 +42,18 @@ def CreateTransitionProbMatrix():
 def PowerIterations(transitionProbMatrix, probabilityDist):
     transitionProbMatrix = [[0.7, 0.3], [0.4, 0.6]]
     probabilityDist = [1, 0]
+    isStationary = False
+    while(isStationary is False):
+        result = MultiplyMatrices(transitionProbMatrix, probabilityDist)
+        print(f"dist: {tabulate([probabilityDist])}")
+        print(f"transProb: {tabulate(transitionProbMatrix)}")
+        print(f"result: {tabulate([result])}")
+        stationary = probabilityDist
+        probabilityDist = result
+        print(f"result: {tabulate([result])}")
+        if(stationary == probabilityDist):
+            return
 
-    result = MultiplyMatrices(transitionProbMatrix, probabilityDist)
-    print(f"dist: {tabulate([probabilityDist])}")
-    print(f"transProb: {tabulate(transitionProbMatrix)}")
-    print(f"result: {tabulate([result])}")
     return
 
 def MultiplyMatrices(transitionProbMatrix, probabilityDist):
@@ -59,12 +66,11 @@ def MultiplyMatrices(transitionProbMatrix, probabilityDist):
     return result
 
 
-def PageRank ():
-    # transitionProbMatrix = CreateTransitionProbMatrix()
-    # randNum = random.randint(0,len(transitionProbMatrix[0]))
-    # probabilityDist = [0]*len(transitionProbMatrix[0])
-    # probabilityDist[randNum] = 1
-    # PowerIterations(transitionProbMatrix, probabilityDist)
-    PowerIterations(None, None)
+def PageRank():
+    transitionProbMatrix = CreateTransitionProbMatrix()
+    randNum = random.randint(0, len(transitionProbMatrix[0]) - 1)
+    probabilityDist = [0] * len(transitionProbMatrix[0])
+    probabilityDist[randNum] = 1
+    PowerIterations(transitionProbMatrix, probabilityDist)
     # links = ExtractLinks(db[:1][0][1])
     # print(links)
