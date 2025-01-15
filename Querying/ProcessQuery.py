@@ -1,8 +1,11 @@
+import nltk
+
 from Querying.Complement import Complement
 from Querying.Intersect import intersect
 from Querying.ProcessAnd import ProcessAnd
 from Querying.ProcessNot import ProcessNot
 from Querying.ProcessOr import ProcessOr
+from nltk.corpus import stopwords
 from nltk.stem import PorterStemmer
 
 from Ranking.ContentBased import vector_space_model
@@ -14,11 +17,14 @@ def ProcessQuery(term_dict, doc_id_to_url):
     query_terms_notstemmed = query.lower().split()
 
     stemmer = PorterStemmer()
+    stop_words = set(stopwords.words('english'))
 
     for term in query_terms_notstemmed:
-            if term != "or" and term != "and" and term != "not":
+            if term not in stop_words and term != "or" and term != "and" and term != "not":
                 stemmed_term = stemmer.stem(term)
                 query_terms.append(stemmed_term)
+
+
     print(query_terms)
     terms = []
     operators = []
@@ -62,28 +68,30 @@ def ProcessQuery(term_dict, doc_id_to_url):
     # Process the remaining 'AND' operators
     if and_terms:
         result = ProcessAnd(and_terms)
-
+    withoutVSM = False
     # Print results
-    # without vsm
-    # if result:
-    #     print(f"Found {len(result)} documents:")
-    #     for doc_id in result:
-    #         for url, id in doc_id_to_url.items():
-    #             if id == doc_id:
-    #                 print(f"Document ID: {doc_id}, URL: {url}")
-    #wih vsm
-    if result:
-        similarities = vector_space_model(term_dict, query_terms)
-        filtered_similarities = {doc_id: similarities[doc_id] for doc_id in result}
-        print(f"The filtered sims: {filtered_similarities}")
-        sorted_results = sorted(filtered_similarities.items(), key=lambda item: item[1], reverse=True)
-        print(f"Found {len(sorted_results)} documents:")
-        for doc_id, similatiry in sorted_results:
-            for url, id in doc_id_to_url.items():
-                if id == doc_id:
-                    print(f"Document ID: {doc_id}, URL: {url}")
+    if withoutVSM:
+        # without vsm
+        if result:
+            print(f"Found {len(result)} documents:")
+            for doc_id in result:
+                for url, id in doc_id_to_url.items():
+                    if id == doc_id:
+                        print(f"Document ID: {doc_id}, URL: {url}")
     else:
-        print("No documents found matching the query.")
+        #wih vsm
+        if result:
+            similarities = vector_space_model(term_dict, query_terms)
+            filtered_similarities = {doc_id: similarities[doc_id] for doc_id in result}
+            print(f"The filtered sims: {filtered_similarities}")
+            sorted_results = sorted(filtered_similarities.items(), key=lambda item: item[1], reverse=True)
+            print(f"Found {len(sorted_results)} documents:")
+            for doc_id, similarity in sorted_results:
+                for url, id in doc_id_to_url.items():
+                    if id == doc_id:
+                        print(f"Document ID: {doc_id}, URL: {url}, Similarity: {similarity}")
+        else:
+            print("No documents found matching the query.")
 
     return result
 
